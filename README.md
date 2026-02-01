@@ -1,16 +1,18 @@
-🧰 AudioTech ToolKit (SOS-INFO-LUDO) 
+🧰 AudioTech ToolKit (SOS-INFO-LUDO)
 
 Une boîte à outils numérique portable pour le diagnostic et la réparation d'amplificateurs audio (spécialisé Ibiza AMP300).
 
 Ce projet est une application web autonome (un seul fichier HTML) conçue pour aider les techniciens et amateurs à réparer du matériel de sonorisation sans danger.
 
-🔗 Accès Rapide
+🔗 ACCÈS À L'OUTIL
 
-[CLIQUEZ ICI POUR UTILISER L'OUTIL EN LIGNE](https://lerapeurdu62280-debug.github.io/SOS-INFO-LUDO/)
+[Lien ICI](https://lerapeurdu62280-debug.github.io/SOS-INFO-LUDO)
+
+Lien alternatif vers le guide : ([GUIDE_REPARATION](https://github.com/lerapeurdu62280-debug/SOS-INFO-LUDO/blob/main/GUIDE_REPARATION.md))
 
 🚀 Fonctionnalités Actuelles
 
-L'application contient 6 modules principaux accessibles via des onglets :
+L'application contient 7 modules principaux accessibles via des onglets :
 
 1. 📝 Cahier d'Atelier (Notes)
 
@@ -26,13 +28,19 @@ Calcul instantané de la Tension, Courant, Résistance ou Puissance.
 
 Idéal pour vérifier la puissance nécessaire d'une résistance de remplacement.
 
-3. 🌊 Calculateur de Filtres
+3. 💡 Calculateur LED (Nouveau)
 
-Calcul de la fréquence de coupure (-3dB) pour les filtres RC.
+Calcule la résistance de protection nécessaire pour vos LEDs témoins en façade.
+
+Indique la puissance dissipée pour choisir la bonne résistance (1/4W, 1/2W, etc.).
+
+4. 🌊 Calculateur de Filtres
+
+Visualisation graphique de la courbe de réponse en fréquence (-3dB).
 
 Indispensable pour le dépannage des étages de préamplification.
 
-4. 🖍️ Outils Composants
+5. 🖍️ Outils Composants
 
 Code Couleurs Résistances : Sélecteur interactif pour lire les valeurs sans tableau.
 
@@ -40,13 +48,13 @@ Brochage Transistors : Schéma visuel des 2SC5200 / 2SA1943 (communs sur les amp
 
 Convertisseur de Capacités : Aide-mémoire rapide (ex: 104 = 100nF).
 
-5. 🛡️ Sécurité & Condensateurs
+6. 🛡️ Sécurité & Condensateurs
 
 Calculateur de temps de décharge pour les gros condensateurs de filtrage.
 
 Prévient les risques d'électrocution liés à l'énergie résiduelle dans l'ampli.
 
-6. 🔊 Générateur de Signal
+7. 🔊 Générateur de Signal
 
 Génère des fréquences pures (Sinus, Carré) de 20Hz à 2000Hz.
 
@@ -66,25 +74,25 @@ Ouvrez-le avec n'importe quel navigateur web (Chrome, Edge, Firefox).
 
 L'outil fonctionne immédiatement, même sans connexion internet.
 
-🗺️ Roadmap (Améliorations futures)
+🗺️ Roadmap
 
-Voici les fonctionnalités que nous prévoyons d'ajouter au projet :
+Voici les fonctionnalités prévues ou terminées :
 
-[ ] Ajout d'un calculateur pour résistances de LED.
+[x] Ajout d'un calculateur pour résistances de LED.
+
+[x] Guide de réparation consultable (voir https://www.google.com/search?q=GUIDE_REPARATION.md).
 
 [ ] Base de données des pannes courantes (Wiki).
-
-[ ] Guide de réparation PDF téléchargeable directement depuis l'outil.
 
 [ ] Mode sombre/clair manuel.
 
 🤝 Contribuer
 
-Les contributions sont les bienvenues ! Si vous avez une idée d'amélioration :
+Les contributions sont les bienvenues !
 
 Forkez le projet.
 
-Créez votre branche de fonctionnalité (git checkout -b feature/AmazingFeature).
+Créez votre branche (git checkout -b feature/AmazingFeature).
 
 Committez vos changements (git commit -m 'Add some AmazingFeature').
 

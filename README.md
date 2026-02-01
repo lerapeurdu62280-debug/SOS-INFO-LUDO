@@ -4,8 +4,9 @@ Une boîte à outils numérique portable pour le diagnostic et la réparation d'
 
 Ce projet est une application web autonome (un seul fichier HTML) conçue pour aider les techniciens et amateurs à réparer du matériel de sonorisation sans danger.
 
-🔗 CLIQUEZ ICI POUR UTILISER L'OUTIL EN LIGNE
-  
+🔗 Accéder à l'outil en ligne :
+https://lerapeurdu62280-debug.github.io/SOS-INFO-LUDO/
+
 🚀 Fonctionnalités
 
 L'application contient 6 modules principaux accessibles via des onglets :

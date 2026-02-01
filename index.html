@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AudioTech ToolKit - Portable</title>
+    <!-- Chargement des bibliothèques via CDN -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@500&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .mono { font-family: 'JetBrains+Mono', monospace; }
+        .resistor-band { height: 40px; width: 12px; border-radius: 2px; }
+        /* Scrollbar custom */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // --- ICONES SVG ---
+        const IconZap = () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 14.71V7c0-1.1.9-2 2-2h9a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-4"/><polyline points="12 2 12 10 22 10 10 22 10 14 2 14 12 2"/></svg>;
+        const IconShield = () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>;
+        const IconMusic = () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>;
+        const IconChip = () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>;
+        const IconNote = () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>;
+        const IconWave = () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12h2.5L7 3l5 18 5-13 2.5 4H22"/></svg>;
+
+        const InputGroup = ({ label, unit, value, onChange, placeholder }) => (
+            <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-400 flex justify-between">
+                    {label} <span>({unit})</span>
+                </label>
+                <input
+                    type="number"
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    placeholder={placeholder}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all mono text-blue-300"
+                />
+            </div>
+        );
+
+        // --- OUTILS DE CALCUL ---
+        const OhmCalculator = () => {
+            const [v, setV] = useState('');
+            const [r, setR] = useState('');
+            const [i, setI] = useState('');
+            const [p, setP] = useState('');
+
+            const calculate = () => {
+                let voltage = parseFloat(v);
+                let resistance = parseFloat(r);
+                let current = parseFloat(i);
+                let power = parseFloat(p);
+
+                if (voltage && resistance) {
+                    setI((voltage / resistance).toFixed(3));
+                    setP((voltage ** 2 / resistance).toFixed(2));
+                } else if (voltage && current) {
+                    setR((voltage / current).toFixed(2));
+                    setP((voltage * current).toFixed(2));
+                } else if (resistance && current) {
+                    setV((resistance * current).toFixed(2));
+                    setP((resistance * current ** 2).toFixed(2));
+                } else if (power && resistance) {
+                    setV(Math.sqrt(power * resistance).toFixed(2));
+                    setI(Math.sqrt(power / resistance).toFixed(3));
+                }
+            };
+
+            const clear = () => { setV(''); setR(''); setI(''); setP(''); };
+
+            return (
+                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="text-yellow-400"><IconZap /></div>
+                        <h2 className="text-xl font-semibold text-white">Loi d'Ohm & Puissance</h2>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <InputGroup label="Tension (U)" unit="Volts" value={v} onChange={setV} placeholder="Ex: 40" />
+                        <InputGroup label="Résistance (R)" unit="Ohms" value={r} onChange={setR} placeholder="Ex: 8" />
+                        <InputGroup label="Courant (I)" unit="Ampères" value={i} onChange={setI} placeholder="Ex: 5" />
+                        <InputGroup label="Puissance (P)" unit="Watts" value={p} onChange={setP} placeholder="Ex: 250" />
+                    </div>
+                    <div className="flex gap-4 pt-4">
+                        <button onClick={calculate} className="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition-colors shadow-lg shadow-blue-900/20">
+                            Calculer
+                        </button>
+                        <button onClick={clear} className="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl transition-colors">
+                            Effacer
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        const FilterCalculator = () => {
+            const [r, setR] = useState('10000');
+            const [c, setC] = useState('0.1'); // en uF
+            const [f, setF] = useState('');
+
+            useEffect(() => {
+                const rVal = parseFloat(r);
+                const cVal = parseFloat(c) / 1000000; // vers Farads
+                if(rVal > 0 && cVal > 0) {
+                    const freq = 1 / (2 * Math.PI * rVal * cVal);
+                    setF(freq.toFixed(1));
+                }
+            }, [r, c]);
+
+            return (
+                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="flex items-center gap-3 mb-4 text-green-400">
+                        <IconWave />
+                        <h2 className="text-xl font-semibold text-white">Filtre Audio RC (Coupure -3dB)</h2>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <InputGroup label="Résistance (R)" unit="Ω" value={r} onChange={setR} />
+                        <InputGroup label="Condensateur (C)" unit="µF" value={c} onChange={setC} />
+                    </div>
+                    <div className="mt-6 p-6 bg-slate-900 rounded-2xl border border-slate-700 text-center">
+                        <p className="text-slate-400 text-xs mb-2 uppercase tracking-widest">Fréquence de coupure ($f_c$)</p>
+                        <div className="text-4xl font-bold text-green-400 mono">
+                            {f} <span className="text-2xl">Hz</span>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const SafetyTools = () => {
+            const [cap, setCap] = useState('4700');
+            const [volts, setVolts] = useState('40');
+            const [res, setRes] = useState('1000');
+
+            const timeConstant = (parseFloat(cap) / 1000000) * parseFloat(res);
+            const dischargeTime = (timeConstant * 5).toFixed(1);
+
+            return (
+                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="flex items-center gap-3 mb-4 text-red-400">
+                        <IconShield />
+                        <h2 className="text-xl font-semibold">Décharge de sécurité</h2>
+                    </div>
+                    <div className="p-4 bg-red-900/20 border border-red-800/50 rounded-xl mb-6">
+                        <p className="text-red-200 text-sm italic">
+                            Un condensateur peut rester chargé à 40V même éteint. Attendez le temps ci-dessous.
+                        </p>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <InputGroup label="Capacité" unit="µF" value={cap} onChange={setCap} />
+                        <InputGroup label="Tension" unit="V" value={volts} onChange={setVolts} />
+                        <InputGroup label="Résistance" unit="Ω" value={res} onChange={setRes} />
+                    </div>
+                    <div className="mt-8 p-6 bg-slate-900 rounded-2xl border border-slate-700 text-center">
+                        <p className="text-slate-400 text-xs mb-2 uppercase tracking-widest">Temps d'attente estimé</p>
+                        <div className="text-5xl font-bold text-cyan-400 mono">
+                            {dischargeTime} <span className="text-2xl">sec</span>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const ComponentTools = () => {
+            const [bands, setBands] = useState(['brown', 'black', 'red', 'gold']);
+            const colors = {
+                black: { val: 0, mult: 1, bg: 'bg-black' },
+                brown: { val: 1, mult: 10, bg: 'bg-amber-900' },
+                red: { val: 2, mult: 100, bg: 'bg-red-600' },
+                orange: { val: 3, mult: 1000, bg: 'bg-orange-500' },
+                yellow: { val: 4, mult: 10000, bg: 'bg-yellow-400' },
+                green: { val: 5, mult: 100000, bg: 'bg-green-600' },
+                blue: { val: 6, mult: 1000000, bg: 'bg-blue-600' },
+                violet: { val: 7, mult: 10000000, bg: 'bg-violet-600' },
+                gray: { val: 8, mult: 100000000, bg: 'bg-gray-500' },
+                white: { val: 9, mult: 1000000000, bg: 'bg-white' },
+                gold: { mult: 0.1, tol: '5%', bg: 'bg-yellow-600' },
+                silver: { mult: 0.01, tol: '10%', bg: 'bg-slate-400' }
+            };
+
+            const calculateResistance = () => {
+                const v1 = colors[bands[0]].val;
+                const v2 = colors[bands[1]].val;
+                const m = colors[bands[2]].mult;
+                const res = (v1 * 10 + v2) * m;
+                return res >= 1000 ? (res / 1000).toFixed(1) + ' kΩ' : res + ' Ω';
+            };
+
+            return (
+                <div className="space-y-8 animate-in fade-in duration-500">
+                    <div>
+                        <div className="flex items-center gap-3 mb-6 text-purple-400">
+                            <IconChip />
+                            <h2 className="text-xl font-semibold text-white">Code Couleurs Résistances</h2>
+                        </div>
+                        
+                        <div className="bg-slate-900 p-6 rounded-2xl border border-slate-700 flex flex-col items-center">
+                            <div className="w-64 h-12 bg-amber-200/20 rounded-full relative flex items-center justify-around px-8 mb-6 border border-amber-900/30">
+                                {bands.map((b, i) => (
+                                    <div key={i} className={`resistor-band ${colors[b].bg} border border-black/20`} />
+                                ))}
+                            </div>
+                            <div className="text-3xl font-bold text-white mono mb-6">
+                                {calculateResistance()} <span className="text-sm text-slate-400">± {colors[bands[3]].tol || '20%'}</span>
+                            </div>
+                            <div className="grid grid-cols-4 gap-2 w-full">
+                                {[0,1,2,3].map(bandIndex => (
+                                    <select 
+                                        key={bandIndex}
+                                        value={bands[bandIndex]} 
+                                        onChange={(e) => {
+                                            const newBands = [...bands];
+                                            newBands[bandIndex] = e.target.value;
+                                            setBands(newBands);
+                                        }}
+                                        className="bg-slate-800 text-xs border border-slate-700 rounded p-1"
+                                    >
+                                        {Object.keys(colors).map(c => (
+                                            <option key={c} value={c}>{c.toUpperCase()}</option>
+                                        ))}
+                                    </select>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="p-4 bg-slate-900 rounded-xl border border-slate-700">
+                            <h3 className="text-sm font-bold text-blue-400 mb-3 uppercase tracking-wider">Brochage 2SC5200 / 2SA1943</h3>
+                            <div className="text-xs space-y-2 text-slate-300 mono">
+                                <p>Vue de face (pattes vers le bas) :</p>
+                                <div className="p-2 bg-slate-800 rounded">
+                                    1. BASE (Signal) <br/>
+                                    2. COLLECTEUR (VCC) <br/>
+                                    3. EMETTEUR (Sortie/HP)
+                                </div>
+                            </div>
+                        </div>
+                        <div className="p-4 bg-slate-900 rounded-xl border border-slate-700">
+                            <h3 className="text-sm font-bold text-green-400 mb-3 uppercase tracking-wider">Unités Capacités</h3>
+                            <div className="text-xs space-y-1 text-slate-300 mono">
+                                <p>104 = 100 nF = 0.1 µF</p>
+                                <p>103 = 10 nF = 0.01 µF</p>
+                                <p>224 = 220 nF = 0.22 µF</p>
+                                <p>1000 µF = 1 mF</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const ToneGenerator = () => {
+            const [freq, setFreq] = useState(440);
+            const [isPlaying, setIsPlaying] = useState(false);
+            const [type, setType] = useState('sine');
+            const audioCtx = useRef(null);
+            const oscillator = useRef(null);
+            const gainNode = useRef(null);
+
+            const togglePlay = () => {
+                if (isPlaying) {
+                    oscillator.current.stop();
+                    setIsPlaying(false);
+                } else {
+                    if (!audioCtx.current) audioCtx.current = new (window.AudioContext || window.webkitAudioContext)();
+                    oscillator.current = audioCtx.current.createOscillator();
+                    gainNode.current = audioCtx.current.createGain();
+                    oscillator.current.type = type;
+                    oscillator.current.frequency.setValueAtTime(freq, audioCtx.current.currentTime);
+                    gainNode.current.gain.setValueAtTime(0.05, audioCtx.current.currentTime);
+                    oscillator.current.connect(gainNode.current);
+                    gainNode.current.connect(audioCtx.current.destination);
+                    oscillator.current.start();
+                    setIsPlaying(true);
+                }
+            };
+
+            useEffect(() => {
+                if (oscillator.current && isPlaying) {
+                    oscillator.current.frequency.setTargetAtTime(freq, audioCtx.current.currentTime, 0.05);
+                }
+            }, [freq]);
+
+            return (
+                <div className="space-y-6 text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="flex items-center gap-3 mb-4 text-cyan-400 justify-center">
+                        <IconMusic />
+                        <h2 className="text-xl font-semibold">Générateur de Signal</h2>
+                    </div>
+                    <div className="bg-slate-900 p-8 rounded-3xl border border-slate-700">
+                        <div className="text-4xl mono text-cyan-400 mb-6">{freq} Hz</div>
+                        <input type="range" min="20" max="2000" step="1" value={freq} onChange={(e) => setFreq(e.target.value)} className="w-full mb-8 cursor-pointer" />
+                        <div className="flex gap-4 justify-center mb-8">
+                            {['sine', 'square'].map(t => (
+                                <button key={t} onClick={() => setType(t)} className={`px-4 py-2 rounded-lg text-xs font-bold ${type === t ? 'bg-cyan-600' : 'bg-slate-800'}`}>
+                                    {t.toUpperCase()}
+                                </button>
+                            ))}
+                        </div>
+                        <button onClick={togglePlay} className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto transition-all ${isPlaying ? 'bg-red-600' : 'bg-cyan-600'}`}>
+                            {isPlaying ? "STOP" : "PLAY"}
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        const NotesTool = () => {
+            const [note, setNote] = useState('');
+
+            // Chargement depuis localStorage au montage
+            useEffect(() => {
+                const saved = localStorage.getItem('audio_toolkit_notes');
+                if (saved) setNote(saved);
+                else {
+                    // Template par défaut
+                    setNote(
+`--- IBIZA AMP300 - SUIVI ---
+Date: ${new Date().toLocaleDateString()}
+
+[ ] Fusibles OK
+[ ] Inspection visuelle OK
+
+MESURES:
+- Rail V+:      V
+- Rail V-:      V
+- Offset G:     mV
+- Offset D:     mV
+
+PIECES A CHANGER:
+- 
+`);
+                }
+            }, []);
+
+            // Sauvegarde automatique à chaque changement
+            useEffect(() => {
+                localStorage.setItem('audio_toolkit_notes', note);
+            }, [note]);
+
+            return (
+                <div className="space-y-4 h-full flex flex-col animate-in fade-in duration-500">
+                    <div className="flex items-center justify-between mb-2 text-slate-300">
+                        <div className="flex items-center gap-2">
+                            <IconNote />
+                            <h2 className="text-xl font-semibold">Cahier d'Atelier</h2>
+                        </div>
+                        <span className="text-xs text-green-500 bg-green-900/30 px-2 py-1 rounded animate-pulse">Sauvegarde auto</span>
+                    </div>
+                    <textarea 
+                        className="flex-1 w-full bg-slate-900 border border-slate-700 rounded-xl p-4 font-mono text-sm text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 resize-none leading-relaxed"
+                        value={note}
+                        onChange={(e) => setNote(e.target.value)}
+                        placeholder="Notez vos mesures ici..."
+                        style={{minHeight: '300px'}}
+                    />
+                    <div className="text-xs text-slate-500 text-center">
+                        Vos notes sont stockées dans le navigateur.
+                    </div>
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [activeTab, setActiveTab] = useState('notes');
+            return (
+                <div className="max-w-4xl mx-auto py-8 px-4">
+                    <header className="mb-8 flex flex-col md:flex-row items-center justify-between gap-4">
+                        <div className="text-center md:text-left">
+                            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+                                AudioTech ToolKit
+                            </h1>
+                            <p className="text-slate-500 text-xs">Atelier de maintenance électronique v3.0</p>
+                        </div>
+                        <nav className="flex bg-slate-800 p-1 rounded-xl border border-slate-700 flex-wrap justify-center gap-1">
+                            <button onClick={() => setActiveTab('notes')} className={`px-3 py-2 rounded-lg transition-all flex items-center gap-2 ${activeTab === 'notes' ? 'bg-indigo-600 text-white' : 'text-slate-400'}`}><span className="hidden md:inline">Notes</span><IconNote/></button>
+                            <button onClick={() => setActiveTab('calc')} className={`px-3 py-2 rounded-lg transition-all ${activeTab === 'calc' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}>Calculs</button>
+                            <button onClick={() => setActiveTab('filter')} className={`px-3 py-2 rounded-lg transition-all ${activeTab === 'filter' ? 'bg-green-600 text-white' : 'text-slate-400'}`}>Filtres</button>
+                            <button onClick={() => setActiveTab('comp')} className={`px-3 py-2 rounded-lg transition-all ${activeTab === 'comp' ? 'bg-purple-600 text-white' : 'text-slate-400'}`}>Composants</button>
+                            <button onClick={() => setActiveTab('safety')} className={`px-3 py-2 rounded-lg transition-all ${activeTab === 'safety' ? 'bg-red-600 text-white' : 'text-slate-400'}`}>Sécurité</button>
+                            <button onClick={() => setActiveTab('tone')} className={`px-3 py-2 rounded-lg transition-all ${activeTab === 'tone' ? 'bg-cyan-600 text-white' : 'text-slate-400'}`}>Signal</button>
+                        </nav>
+                    </header>
+                    <main className="bg-slate-800 rounded-2xl border border-slate-700 shadow-2xl p-6 min-h-[500px]">
+                        {activeTab === 'notes' && <NotesTool />}
+                        {activeTab === 'calc' && <OhmCalculator />}
+                        {activeTab === 'filter' && <FilterCalculator />}
+                        {activeTab === 'comp' && <ComponentTools />}
+                        {activeTab === 'safety' && <SafetyTools />}
+                        {activeTab === 'tone' && <ToneGenerator />}
+                    </main>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

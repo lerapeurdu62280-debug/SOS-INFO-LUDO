@@ -4,10 +4,11 @@ Une boîte à outils numérique portable pour le diagnostic et la réparation d'
 
 Ce projet est une application web autonome (un seul fichier HTML) conçue pour aider les techniciens et amateurs à réparer du matériel de sonorisation sans danger.
 
-🔗 Accéder à l'outil en ligne :
-https://lerapeurdu62280-debug.github.io/SOS-INFO-LUDO/
+🔗 Accès Rapide
 
-🚀 Fonctionnalités
+[CLIQUEZ ICI POUR UTILISER L'OUTIL EN LIGNE](https://lerapeurdu62280-debug.github.io/SOS-INFO-LUDO/)
+
+🚀 Fonctionnalités Actuelles
 
 L'application contient 6 modules principaux accessibles via des onglets :
 
@@ -64,5 +65,35 @@ Téléchargez le fichier index.html.
 Ouvrez-le avec n'importe quel navigateur web (Chrome, Edge, Firefox).
 
 L'outil fonctionne immédiatement, même sans connexion internet.
+
+🗺️ Roadmap (Améliorations futures)
+
+Voici les fonctionnalités que nous prévoyons d'ajouter au projet :
+
+[ ] Ajout d'un calculateur pour résistances de LED.
+
+[ ] Base de données des pannes courantes (Wiki).
+
+[ ] Guide de réparation PDF téléchargeable directement depuis l'outil.
+
+[ ] Mode sombre/clair manuel.
+
+🤝 Contribuer
+
+Les contributions sont les bienvenues ! Si vous avez une idée d'amélioration :
+
+Forkez le projet.
+
+Créez votre branche de fonctionnalité (git checkout -b feature/AmazingFeature).
+
+Committez vos changements (git commit -m 'Add some AmazingFeature').
+
+Pushez vers la branche (git push origin feature/AmazingFeature).
+
+Ouvrez une Pull Request.
+
+📄 Licence
+
+Distribué sous la licence MIT. Voir LICENSE pour plus d'informations.
 
 Projet développé pour l'assistance au dépannage électronique.
